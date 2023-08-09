@@ -36,4 +36,15 @@ app.put('/profile', (req, res) => {
         return res.status(401).send("Username is not correct");
 })
 
+app.get("/profiles", (req, res) => {
+    const usersDataCopy = JSON.parse(JSON.stringify(allUsersData));
+
+    usersDataCopy.forEach(user => {
+        delete usersDataCopy['password'];
+    })
+
+
+    res.json(usersDataCopy);
+})
+
 app.listen(7050, () => { console.log("Listening to the port 7050") });
