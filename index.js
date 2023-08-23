@@ -43,7 +43,7 @@ app.post('/login', (req, res) => {
             flag = true;
             const token = jwt.sign({ username: user.username }, secret_key, { expiresIn: 36000 });
             res.setHeader("authtoken", token);
-            setTimeout(() => res.json({ message: "Successfully LoggedIn" }), 0);
+            return res.json({ message: "Successfully LoggedIn" });
         }
     })
     if (!flag) {
