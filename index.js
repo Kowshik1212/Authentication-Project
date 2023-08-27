@@ -1,12 +1,14 @@
 const express = require('express');
 const boolean = require('joi/lib/types/boolean');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 const secret_key = "JWT_SECRET_KEY";
 const verifyToken = (req, res, next) => {
-    const token = req.headers['authtoken'];
+    const token = req.cookies.authtoken;
     if (token === null || token === undefined) {
         return res.status(400).send("token is required to call this API!!!");
     }
@@ -42,7 +44,7 @@ app.post('/login', (req, res) => {
         if (user['username'] === req.body['username'] && user['password'] === req.body['password']) {
             flag = true;
             const token = jwt.sign({ username: user.username }, secret_key, { expiresIn: 36000 });
-            res.setHeader("authtoken", token);
+            res.cookie("authtoken", token);
             return res.json({ message: "Successfully LoggedIn" });
         }
     })
@@ -60,8 +62,7 @@ app.put('/profile', verifyToken, (req, res) => {
                 if (req.body[key] != undefined)
                     user.key = req.body[key];
             })
-            res.send("Successfully updated your profile");
-            return res.send(user);
+            return res.send("Successfully updated your profile");
         }
         if (user.username === req.body.username && user.password !== req.body.password)
             return res.status(401).send("Password is not correct");
@@ -79,6 +80,11 @@ app.get("/profiles", (req, res) => {
 
 
     res.json(usersDataCopy);
+})
+
+app.post("/logout", (req, res) => {
+    res.clearCookie('authtoken');
+    return res.send("Logged out successfully");
 })
 
 app.listen(7050, () => { console.log("Listening to the port 7050") });
